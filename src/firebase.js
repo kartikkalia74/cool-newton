@@ -59,19 +59,28 @@ if (config) {
   try {
     // Prevent duplicate initialization
     app = getApps().length === 0 ? initializeApp(config) : getApp();
+    auth = getAuth(app);
     
     // Initialize Firestore with robust multi-tab offline persistence
-    db = initializeFirestore(app, {
-      localCache: persistentLocalCache({
-        tabManager: persistentMultipleTabManager()
-      })
-    });
+    try {
+      db = initializeFirestore(app, {
+        localCache: persistentLocalCache({
+          tabManager: persistentMultipleTabManager()
+        })
+      });
+    } catch (cacheErr) {
+      if (cacheErr.code === 'failed-precondition' || cacheErr.message?.includes('already exist')) {
+        db = getFirestore(app);
+      } else {
+        console.warn("Firestore offline cache initialization failed, falling back to standard Firestore:", cacheErr);
+        db = getFirestore(app);
+      }
+    }
 
-    auth = getAuth(app);
     isMock = false;
     console.log(`Firebase successfully initialized via source: ${source}`);
   } catch (err) {
-    console.error("Firebase initialization failed. Falling back to Local Mock Mode.", err);
+    console.error("Firebase initialization failed completely. Falling back to Local Mock Mode.", err);
   }
 }
 
