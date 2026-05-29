@@ -16,7 +16,8 @@ import {
   WifiOff, 
   Check, 
   HelpCircle,
-  X
+  X,
+  AlertCircle
 } from 'lucide-react';
 
 export default function App() {
@@ -51,6 +52,7 @@ export default function App() {
     activeTimer,
     categories,
     loading: dbLoading,
+    syncError,
     addTask,
     toggleTask,
     deleteTask,
@@ -294,18 +296,19 @@ export default function App() {
         <div style={{
           background: 'rgba(234, 179, 8, 0.08)',
           borderBottom: '1px solid rgba(234, 179, 8, 0.15)',
-          padding: '8px 16px',
+          padding: '10px 16px',
           fontSize: '0.82rem',
           fontWeight: 600,
           color: 'hsl(var(--warning))',
           display: 'flex',
+          flexWrap: 'wrap',
           alignItems: 'center',
           justifyContent: 'center',
           gap: '8px',
           textAlign: 'center'
         }}>
-          <WifiOff size={14} />
-          <span>Local Offline Mode (Syncing between tabs). </span>
+          <WifiOff size={14} style={{ flexShrink: 0 }} />
+          <span><strong>Local Offline Mode:</strong> Your data is saved locally to this browser only. </span>
           <button 
             onClick={() => setShowConfigModal(true)}
             style={{
@@ -314,12 +317,40 @@ export default function App() {
               color: 'hsl(var(--warning))',
               textDecoration: 'underline',
               fontWeight: 700,
-              cursor: 'pointer'
+              cursor: 'pointer',
+              padding: 0
             }}
           >
             Connect Firebase Firestore
           </button>
-          <span> to sync across mobile and laptop.</span>
+          <span> to enable cloud sync across all of your browsers and devices.</span>
+        </div>
+      )}
+
+      {/* 2.5. Firestore Sync Error Banner */}
+      {!isMock && syncError && (
+        <div style={{
+          background: 'rgba(239, 68, 68, 0.08)',
+          borderBottom: '1px solid rgba(239, 68, 68, 0.15)',
+          padding: '12px 16px',
+          fontSize: '0.85rem',
+          fontWeight: 600,
+          color: 'hsl(var(--danger))',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '6px',
+          textAlign: 'center'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <AlertCircle size={16} style={{ flexShrink: 0 }} />
+            <span><strong>Database Sync Failed:</strong> {syncError}</span>
+          </div>
+          <span style={{ fontSize: '0.78rem', color: 'hsl(var(--muted))', maxWidth: '700px' }}>
+            This usually happens if your Firestore Security Rules block access or standard credentials are not configured.
+            Ensure you have allowed authenticated owner read/writes under <code>/users/{"{userId}"}</code>.
+          </span>
         </div>
       )}
 
@@ -330,13 +361,31 @@ export default function App() {
           <div style={{
             gridColumn: '1 / -1',
             display: 'flex',
+            flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '60px',
+            padding: '80px 20px',
             color: 'hsl(var(--muted))',
-            fontWeight: 500
+            fontWeight: 500,
+            gap: '16px'
           }}>
             <span>Syncing database with Firestore...</span>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button 
+                onClick={() => window.location.reload()}
+                className="btn btn-secondary"
+                style={{ fontSize: '0.8rem', padding: '8px 16px' }}
+              >
+                Retry Connection
+              </button>
+              <button 
+                onClick={() => setShowConfigModal(true)}
+                className="btn btn-secondary btn-danger"
+                style={{ fontSize: '0.8rem', padding: '8px 16px' }}
+              >
+                Adjust Firebase Settings
+              </button>
+            </div>
           </div>
         ) : (
           <>

@@ -35,6 +35,7 @@ export const useSyncData = (user) => {
     category: 'Work'
   });
   const [loading, setLoading] = useState(true);
+  const [syncError, setSyncError] = useState(null);
 
   const uid = user ? user.uid : null;
 
@@ -94,10 +95,12 @@ export const useSyncData = (user) => {
   useEffect(() => {
     if (isMock || !uid) {
       if (!uid) setLoading(false);
+      setSyncError(null);
       return;
     }
 
     setLoading(true);
+    setSyncError(null);
 
     // Sync tasks
     const tasksQuery = query(
@@ -114,6 +117,8 @@ export const useSyncData = (user) => {
       setLoading(false);
     }, (err) => {
       console.error("Error subscribing to tasks: ", err);
+      setSyncError(err.message || "Failed to sync tasks with database.");
+      setLoading(false);
     });
 
     // Sync time logs
@@ -131,6 +136,8 @@ export const useSyncData = (user) => {
       setTimeLogs(logsData);
     }, (err) => {
       console.error("Error subscribing to time logs: ", err);
+      setSyncError(err.message || "Failed to sync time logs with database.");
+      setLoading(false);
     });
 
     // Sync active running timer
@@ -153,6 +160,8 @@ export const useSyncData = (user) => {
       }
     }, (err) => {
       console.error("Error subscribing to active timer: ", err);
+      setSyncError(err.message || "Failed to sync timer state with database.");
+      setLoading(false);
     });
 
     // Sync custom categories
@@ -171,6 +180,8 @@ export const useSyncData = (user) => {
       }
     }, (err) => {
       console.error("Error subscribing to categories: ", err);
+      setSyncError(err.message || "Failed to sync categories with database.");
+      setLoading(false);
     });
 
     return () => {
@@ -383,6 +394,7 @@ export const useSyncData = (user) => {
     activeTimer,
     categories,
     loading,
+    syncError,
     addTask,
     toggleTask,
     deleteTask,

@@ -189,6 +189,32 @@ export default function Auth({ onMockDemoStart }) {
           </button>
         </div>
 
+        {/* Local Offline Mock Mode Warning for Authentication */}
+        {isMock && (
+          <div style={{
+            background: 'rgba(234, 179, 8, 0.06)',
+            border: '1px solid rgba(234, 179, 8, 0.15)',
+            borderRadius: 'var(--radius-md)',
+            padding: '14px 16px',
+            fontSize: '0.82rem',
+            textAlign: 'left',
+            color: 'hsl(var(--warning))',
+            marginBottom: '24px',
+            fontWeight: 500,
+            lineHeight: 1.4
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+              <AlertCircle size={16} style={{ flexShrink: 0 }} />
+              <strong style={{ color: 'hsl(var(--warning))' }}>Local Simulation Mode Active</strong>
+            </div>
+            <span>
+              Signing in with any credentials will create a browser-local profile. 
+              <strong> Data will NOT sync</strong> across different browsers (e.g. Chrome to Safari) or devices. 
+              Configure your Firebase keys via the top-right Settings wheel to enable secure cloud sync.
+            </span>
+          </div>
+        )}
+
         {/* Divider */}
         <div style={{
           display: 'flex',
